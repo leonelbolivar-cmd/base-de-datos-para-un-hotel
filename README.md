@@ -2,3 +2,4 @@
 Integrantes:
 -Diego Alonso Meza Perochena
 -Leonel Alessandro Bolivar Domador
+-Rodrigo Samuel Lovon Ahumada
