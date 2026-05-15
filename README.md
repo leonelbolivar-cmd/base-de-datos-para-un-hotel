@@ -3,3 +3,4 @@ Integrantes:
 -Diego Alonso Meza Perochena
 -Matheo Miguel Atencio Zuñiga
 -Leonel Alessandro Bolivar Domador
+-Rodrigo Samuel Lovon Ahuumada
