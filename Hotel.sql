@@ -1,21 +1,26 @@
+-- Modulo 1: ESTRUCTURA INTERNA Y PERSONAL
 
+CREATE TABLE departamentos (
+    id_departamento SERIAL,
+    nombre_area VARCHAR(100) NOT NULL,
+    anexo_telefonico VARCHAR(10),
+    
+    CONSTRAINT pk_departamentos PRIMARY KEY (id_departamento)
+);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+CREATE TABLE empleados (
+    id_empleado SERIAL,
+    nombre_completo VARCHAR(150) NOT NULL,
+    cargo VARCHAR(50),
+    turno VARCHAR(20),
+    id_departamento INT,
+    id_jefe_directo INT,
+    
+    CONSTRAINT pk_empleados PRIMARY KEY (id_empleado),
+    
+    CONSTRAINT fk_empleados_departamentos FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento),
+    CONSTRAINT fk_empleados_jefe FOREIGN KEY (id_jefe_directo) REFERENCES empleados(id_empleado)
+);
 
 
 -- Modulo 2: CLIENTES Y RESERVAS
@@ -105,4 +110,20 @@ CREATE TABLE mantenimiento_tareas (
     CONSTRAINT pk_mantenimiento_tareas PRIMARY KEY (id_tarea),
     CONSTRAINT fk_mantenimiento_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
     CONSTRAINT fk_mantenimiento_habitaciones FOREIGN KEY (numero_habitacion) REFERENCES habitaciones(numero_habitacion)
+);
+
+-- Modulo 5: FACTURACIÓN
+
+CREATE TABLE boleta (
+    id_comprobante SERIAL,
+    fecha_emision TIMESTAMP NOT NULL,
+    monto_total DECIMAL(10,2) NOT NULL,
+    id_reserva INT,
+    dni_cliente VARCHAR(15),
+    id_empleado INT,
+    
+    CONSTRAINT pk_boleta PRIMARY KEY (id_comprobante),
+    CONSTRAINT fk_boleta_reserva FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva),
+    CONSTRAINT fk_boleta_cliente FOREIGN KEY (dni_cliente) REFERENCES cliente(dni_cliente),
+    CONSTRAINT fk_boleta_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
 );
