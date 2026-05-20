@@ -112,6 +112,56 @@ CREATE TABLE mantenimiento_tareas (
     CONSTRAINT fk_mantenimiento_habitaciones FOREIGN KEY (numero_habitacion) REFERENCES habitaciones(numero_habitacion)
 );
 
+-- Modulo 4: SERVICIOS ADICIONALES 
+
+CREATE TABLE restaurante_consumos (
+    id_consumo SERIAL,
+    detalle_pedido TEXT NOT NULL,
+    monto_consumo DECIMAL(10,2) NOT NULL,
+    fecha_hora TIMESTAMP,
+    id_reserva INT,
+    id_empleado INT,
+    
+    CONSTRAINT pk_restaurante_consumos PRIMARY KEY (id_consumo),
+    CONSTRAINT fk_restaurante_reserva FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva),
+    CONSTRAINT fk_restaurante_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+);
+
+CREATE TABLE guarderia_registros (
+    id_registro_guarderia SERIAL,
+    nombre_nino VARCHAR(100) NOT NULL,
+    hora_ingreso TIMESTAMP,
+    hora_salida TIMESTAMP,
+    id_reserva INT,
+    id_empleado INT,
+    
+    CONSTRAINT pk_guarderia_registros PRIMARY KEY (id_registro_guarderia),
+    CONSTRAINT fk_guarderia_reserva FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva),
+    CONSTRAINT fk_guarderia_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+);
+
+CREATE TABLE cochera (
+    id_espacio SERIAL,
+    numero_estacionamiento VARCHAR(10),
+    placa_vehiculo VARCHAR(15),
+    id_reserva INT,
+    
+    CONSTRAINT pk_cochera PRIMARY KEY (id_espacio),
+    CONSTRAINT fk_cochera_reserva FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva)
+);
+
+CREATE TABLE eventos (
+    id_evento SERIAL,
+    nombre_evento VARCHAR(100) NOT NULL,
+    fecha_evento DATE,
+    costo_alquiler DECIMAL(10,2),
+    dni_cliente VARCHAR(15),
+    id_empleado INT,
+    
+    CONSTRAINT pk_eventos PRIMARY KEY (id_evento),
+    CONSTRAINT fk_eventos_cliente FOREIGN KEY (dni_cliente) REFERENCES cliente(dni_cliente),
+    CONSTRAINT fk_eventos_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+);
 -- Modulo 5: FACTURACIÓN
 
 CREATE TABLE boleta (
