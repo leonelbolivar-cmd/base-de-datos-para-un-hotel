@@ -20,6 +20,34 @@ UPDATE empleados
 SET id_empleado = 60, anexo_telefonico = '106'
 WHERE id_empleado = 50 AND anexo_telefonico = '105';
 
+
+--Modulo 2--
+
+INSERT INTO convenios(empresa_asociada, porcentaje_descuento)
+VALUES
+("Banco Continental", 10.00),
+("Banco Intercontinental", 15.50),
+("Universidad Nacional", 20.00),
+("Ministerio de Salud", 12.75),
+("Aerolíneas Latam", 18.00);
+
+UPDATE convenios
+SET porcentaje_descuento = 15.00
+WHERE id_convenio = 1;
+
+INSERT INTO cliente(dni_cliente, nombre_completo, telefono, email, id_convenio)
+VALUES
+("70123456", "Carlos Mendoza Pantigoso", "987654321", "carlos@gmail.com", 1),
+("71234567", "Armando Banco Torres", "998877665", "armando@gmail.com", 2),
+("72345678", "Cristian Castro Diaz", "955443322", "cristian@gmail.com", 3),
+("73456789", "Mariana López Díaz", "966112233", "mariana@gmail.com", 4),
+("74567890", "José Juan Vega", "977889900", "jose@gmail.com", 5);
+
+UPDATE cliente
+SET telefono = "999888777"
+WHERE dni_cliente = "70123456";
+
+
 --Modulo 3--
 
 INSERT INTO proveedores(ruc_proveedor,razon_social,telefono_contacto)
