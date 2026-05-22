@@ -67,3 +67,24 @@ VALUES
  UPDATE almacen_productos
 SET cantidad_stock=20
 where id_producto=20;
+
+--Modulo 4--
+INSERT INTO restaurante_consumos(id_consumo,detalle_pedido,monto_asignado,monto_consumo,fecha_hora,id_reserva,id_empleado)
+VALUES 
+(1,'bebidas', 15.2, 15, SYSDATE, 2, 3),   
+(2,'plato de fondo', 45.0, 42, SYSDATE, 2, 3),  
+(3,'postres', 20.5, 20, SYSDATE, 4, 1),      
+(4,'entradas', 30.0, 30, SYSDATE, 5, 2),        
+(5,'cafetería', 12.8, 12, SYSDATE, 2, 3);       
+
+INSERT INTO guarderia_registros(id_registro_guarderia,nombre_nino,hora hora_ingreso,hora hora_salida,id_reserva,id_empleado)
+VALUES
+(1,'Mateo Benítez', SYSDATE,SYSDATE, 101, 5), 
+(2,'Valentina Paz', SYSDATE,SYSDATE, 102, 5),       
+(3,'Thiago Sosa', SYSDATE, SYSDATE, 103, 8),        
+(4,'Sofía Méndez', SYSDATE, SYSDATE, 104, 2),         
+(5,'Lucas Torres', SYSDATE, SYSDATE, 105, 8);
+
+UPDATE guarderia_registros
+SET nombre_nino="Mateo Benavides"
+WHERE id_registro=1;
