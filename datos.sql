@@ -16,6 +16,9 @@ VALUES
   (3, 'Paco Vega Osmos', 'Vigilante', 'Mañana', 40, NULL),
   (4, 'Susana Oria Ramos', 'Recepcionista', 'Mañana', 20, 6),
   (5, 'Tomas Castelo Pishy', 'Conserje', 'Tarde', 30, 7);
+UPDATE empleados
+SET id_empleado = 60, anexo_telefonico = '106'
+WHERE id_empleado = 50 AND anexo_telefonico = '105';
 
 --Modulo 3--
 
