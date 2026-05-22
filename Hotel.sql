@@ -33,6 +33,21 @@ CREATE TABLE convenios (
     CONSTRAINT pk_convenios PRIMARY KEY (id_convenio)
 );
 
+INSERT INTO convenios (empresa_asociada, porcentaje_descuento)
+VALUES 
+('Banco Continental', 10.00),
+('Tech Solutions SAC', 15.50),
+('Universidad Nacional', 20.00),
+('Ministerio de Salud', 12.75),
+('Aerolíneas Perú', 18.00);
+
+UPDATE convenios
+SET porcentaje_descuento = 25.00
+WHERE id_convenio = 3;
+
+
+
+
 CREATE TABLE cliente (
     dni_cliente VARCHAR(15),
     nombre_completo VARCHAR(150) NOT NULL,
@@ -44,6 +59,21 @@ CREATE TABLE cliente (
     CONSTRAINT fk_cliente_convenios FOREIGN KEY (id_convenio) REFERENCES convenios(id_convenio)
 );
 
+INSERT INTO cliente (dni_cliente, nombre_completo, telefono, email, id_convenio)
+VALUES
+('70123456', 'Carlos Mendoza Ruiz', '987654321', 'carlos@gmail.com', 1),
+('71234567', 'Ana Torres Silva', '998877665', 'ana@gmail.com', 2),
+('72345678', 'Luis Fernández Castro', '955443322', 'luis@gmail.com', 3),
+('73456789', 'María López Díaz', '966112233', 'maria@gmail.com', 4),
+('74567890', 'José Ramírez Vega', '977889900', 'jose@gmail.com', 5);
+
+
+UPDATE cliente
+SET telefono = '999888777'
+WHERE dni_cliente = '70123456';
+
+
+
 CREATE TABLE habitaciones (
     numero_habitacion VARCHAR(10),
     tipo_habitacion VARCHAR(50) NOT NULL,
@@ -52,6 +82,20 @@ CREATE TABLE habitaciones (
     
     CONSTRAINT pk_habitaciones PRIMARY KEY (numero_habitacion)
 );
+
+INSERT INTO habitaciones (numero_habitacion, tipo_habitacion, capacidad_personas, precio_base_noche)
+VALUES
+('101', 'Simple', 1, 120.00),
+('102', 'Doble', 2, 180.00),
+('201', 'Matrimonial', 2, 220.00),
+('202', 'Suite', 4, 450.00),
+('301', 'Familiar', 5, 550.00);
+
+UPDATE habitaciones
+SET precio_base_noche = 250.00
+WHERE numero_habitacion = '201';
+
+
 
 CREATE TABLE reserva (
     id_reserva SERIAL,
@@ -65,6 +109,20 @@ CREATE TABLE reserva (
     CONSTRAINT fk_reserva_cliente FOREIGN KEY (dni_cliente) REFERENCES cliente(dni_cliente),
     CONSTRAINT fk_reserva_habitaciones FOREIGN KEY (numero_habitacion) REFERENCES habitaciones(numero_habitacion)
 );
+
+
+INSERT INTO reserva (fecha_checkin, fecha_checkout, estado, dni_cliente, numero_habitacion)
+VALUES
+('2026-06-01', '2026-06-05', 'Confirmada', '70123456', '101'),
+('2026-06-03', '2026-06-06', 'Pendiente', '71234567', '102'),
+('2026-06-10', '2026-06-15', 'Confirmada', '72345678', '201'),
+('2026-06-12', '2026-06-14', 'Cancelada', '73456789', '202'),
+('2026-06-20', '2026-06-25', 'Confirmada', '74567890', '301');
+
+
+UPDATE reserva
+SET estado = 'Finalizada'
+WHERE id_reserva = 1;
 
 
 -- Modulo 3: Logistica y Operaciones
