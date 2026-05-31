@@ -94,6 +94,17 @@ CREATE TABLE almacen_productos (
     CONSTRAINT pk_almacen_productos PRIMARY KEY (id_producto),
     CONSTRAINT fk_almacen_proveedores FOREIGN KEY (ruc_proveedor) REFERENCES proveedores(ruc_proveedor)
 );
+CREATE TABLE movimientos_almacen (
+    id_movimiento SERIAL,
+    id_producto INT NOT NULL,
+    id_empleado INT NOT NULL,
+    cantidad INT NOT NULL, 
+    tipo_movimiento VARCHAR(20) NOT NULL, 
+    fecha_movimiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT pk_movimientos_almacen PRIMARY KEY (id_movimiento),
+    CONSTRAINT fk_movimientos_productos FOREIGN KEY (id_producto) REFERENCES almacen_productos(id_producto),
+    CONSTRAINT fk_movimientos_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+);
 
 
 CREATE TABLE presupuestos (
