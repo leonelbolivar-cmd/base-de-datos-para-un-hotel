@@ -52,10 +52,9 @@ CREATE TABLE habitaciones (
     tipo_habitacion VARCHAR(50) NOT NULL,
     capacidad_personas INT NOT NULL,
     precio_base_noche DECIMAL(10,2) NOT NULL,
-    
+    estado_habitacion VARCHAR(20) DEFAULT 'Disponible', --nuevo
     CONSTRAINT pk_habitaciones PRIMARY KEY (numero_habitacion)
 );
-
 
 
 
@@ -90,21 +89,19 @@ CREATE TABLE proveedores (
 CREATE TABLE almacen_productos (
     id_producto SERIAL,
     nombre_producto VARCHAR(100) NOT NULL,
-    id_empleado INT,
     cantidad_stock INT NOT NULL,
     ruc_proveedor VARCHAR(20),
-    
     CONSTRAINT pk_almacen_productos PRIMARY KEY (id_producto),
-    CONSTRAINT fk_almacen_proveedores FOREIGN KEY (ruc_proveedor) REFERENCES proveedores(ruc_proveedor),
-    CONSTRAINT fk_almacen_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+    CONSTRAINT fk_almacen_proveedores FOREIGN KEY (ruc_proveedor) REFERENCES proveedores(ruc_proveedor)
 );
+
 
 CREATE TABLE presupuestos (
     id_presupuesto SERIAL,
     monto_asignado DECIMAL(12,2) NOT NULL,
-    fecha_periodo VARCHAR(50),
+    fecha_inicio DATE NOT NULL, 
+    fecha_fin DATE NOT NULL,    
     id_departamento INT,
-    
     CONSTRAINT pk_presupuestos PRIMARY KEY (id_presupuesto),
     CONSTRAINT fk_presupuestos_departamentos FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento)
 );
@@ -114,8 +111,7 @@ CREATE TABLE mantenimiento_tareas (
     descripcion_trabajo TEXT NOT NULL,
     fecha_realizacion DATE,
     id_empleado INT,
-    numero_habitacion VARCHAR(10),
-    
+    numero_habitacion VARCHAR(10) NULL, -- ¡CORREGIDO!
     CONSTRAINT pk_mantenimiento_tareas PRIMARY KEY (id_tarea),
     CONSTRAINT fk_mantenimiento_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
     CONSTRAINT fk_mantenimiento_habitaciones FOREIGN KEY (numero_habitacion) REFERENCES habitaciones(numero_habitacion)
@@ -164,11 +160,10 @@ CREATE TABLE eventos (
     nombre_evento VARCHAR(100) NOT NULL,
     fecha_evento DATE,
     costo_alquiler DECIMAL(10,2),
-    dni_cliente VARCHAR(15),
+    id_reserva INT, 
     id_empleado INT,
-    
     CONSTRAINT pk_eventos PRIMARY KEY (id_evento),
-    CONSTRAINT fk_eventos_cliente FOREIGN KEY (dni_cliente) REFERENCES cliente(dni_cliente),
+    CONSTRAINT fk_eventos_reserva FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva),
     CONSTRAINT fk_eventos_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
 );
 -- Modulo 5: FACTURACIÓN
