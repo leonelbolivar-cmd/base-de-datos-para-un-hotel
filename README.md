@@ -5,4 +5,4 @@ Integrantes:
 -Rodrigo Samuel Lovon Ahumada
 -Matheo Miguel Atencio Zuñiga
 
-En este trabajo hay 15 tablas.
+En este trabajo hay 16 tablas.
