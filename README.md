@@ -1,6 +1,6 @@
 # base-de-datos-para-un-hotel
 Integrantes:
--Diego Alonso Meza Perochena
+-Diego Alonso Meza Perochena (diegomezaperochena)
 -Leonel Alessandro Bolivar Domador(leonelbolivar-cmd y Aless014)
 -Rodrigo Samuel Lovon Ahumada
 -Matheo Miguel Atencio Zuñiga
