@@ -160,3 +160,80 @@ BEGIN
     RETURN v_resultado;
 END;
 $$ LANGUAGE plpgsql;
+
+--insercion en carcada(al algo asi ya me olvide)
+
+
+-- =====================================================================
+-- REQUISITO CRÍTICO ENTREGABLE 1: INSERCIÓN/ACTUALIZACIÓN EN CASCADA (3+ TABLAS)
+-- =====================================================================
+
+CREATE OR REPLACE FUNCTION registrar_checkin_completo(
+    p_id_reserva INT,
+    p_numero_habitacion VARCHAR,
+    p_dni_cliente VARCHAR,
+    p_id_empleado INT
+) 
+RETURNS JSON AS $$
+DECLARE
+    v_precio_habitacion DECIMAL(10,2);
+    v_resultado JSON;
+BEGIN
+    -- 1. Actualizar el estado de la reserva a 'Activa' (Tabla 1)
+    UPDATE reserva 
+    SET estado = 'Activa' 
+    WHERE id_reserva = p_id_reserva;
+
+    -- 2. Cambiar el estado de la habitación a 'Ocupada' (Tabla 2)
+    UPDATE habitaciones 
+    SET estado_habitacion = 'Ocupada' 
+    WHERE numero_habitacion = p_numero_habitacion;
+
+    -- Obtener el precio de la habitación para la boleta inicial
+    SELECT precio_base_noche INTO v_precio_habitacion 
+    FROM habitaciones 
+    WHERE numero_habitacion = p_numero_habitacion;
+
+    -- 3. Crear el registro base de la boleta de consumo inicial (Tabla 3)
+    INSERT INTO boleta (fecha_emision, monto_total, id_reserva, dni_cliente, id_empleado)
+    VALUES (CURRENT_TIMESTAMP, v_precio_habitacion, p_id_reserva, p_dni_cliente, p_id_empleado);
+
+    -- Construir respuesta de éxito para PostgREST
+    v_resultado := json_build_object(
+        'status', 'success',
+        'message', 'Check-in procesado correctamente en las 3 tablas.',
+        'id_reserva', p_id_reserva,
+        'habitacion_ocupada', p_numero_habitacion
+    );
+
+    RETURN v_resultado;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN json_build_object(
+            'status', 'error',
+            'message', SQLERRM
+        );
+END;
+$$ LANGUAGE plpgsql;
+
+--otra cosa
+CREATE OR REPLACE FUNCTION registrar_consumo_transaccional(
+    p_id_reserva INT,
+    p_detalle TEXT,
+    p_monto DECIMAL(10,2)
+) RETURNS JSON AS $$
+BEGIN
+    -- 1. Insertamos el consumo (Acción A)
+    INSERT INTO restaurante_consumos (detalle_pedido, monto_consumo, id_reserva, fecha_hora)
+    VALUES (p_detalle, p_monto, p_id_reserva, CURRENT_TIMESTAMP);
+
+    -- Nota: Si usaras una tabla de inventarios, aquí harías el UPDATE del stock.
+
+    RETURN json_build_object('status', 'success', 'message', 'Transacción completada con COMMIT.');
+EXCEPTION
+    WHEN OTHERS THEN
+        -- PostgreSQL hace ROLLBACK automático si algo falla dentro del bloque
+        RETURN json_build_object('status', 'error', 'message', SQLERRM);
+END;
+$$ LANGUAGE plpgsql;

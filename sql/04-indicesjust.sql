@@ -75,26 +75,18 @@ COMMIT;
 
 
 --ESTA RESERVA DA ERROR porq el dni 99999 no existe haciendo que se ejecuuta el rolback
-BEGIN;
+DO $$
+BEGIN
+    -- 1. Intentamos cambiar el estado de la habitación
+    UPDATE habitaciones
+    SET estado_habitacion = 'Ocupada'
+    WHERE numero_habitacion = '104';
 
-UPDATE habitaciones
-SET estado_habitacion = 'Ocupada'
-WHERE numero_habitacion = '104';
+    -- 2. Forzamos el error con un DNI que no existe
+    INSERT INTO reserva (fecha_checkin, fecha_checkout, estado, dni_cliente, numero_habitacion)
+    VALUES ('2026-07-01', '2026-07-05', 'Confirmada', '99999999', '104');
 
-INSERT INTO reserva (
-    fecha_checkin,
-    fecha_checkout,
-    estado,
-    dni_cliente,
-    numero_habitacion
-)
-VALUES (
-    '2026-07-01',
-    '2026-07-05',
-    'Confirmada',
-    '99999999',
-    '104'
-);
-
-ROLLBACK;
-
+EXCEPTION
+    WHEN foreign_key_violation THEN
+        RAISE NOTICE 'Transacción abortada correctamente por violación de FK. ACID funcionando (ROLLBACK).';
+END $$;
