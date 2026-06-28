@@ -19,7 +19,8 @@ CREATE TABLE empleados (
     CONSTRAINT pk_empleados PRIMARY KEY (id_empleado),
     
     CONSTRAINT fk_empleados_departamentos FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento),
-    CONSTRAINT fk_empleados_jefe FOREIGN KEY (id_jefe_directo) REFERENCES empleados(id_empleado)
+    CONSTRAINT fk_empleados_jefe FOREIGN KEY (id_jefe_directo) REFERENCES empleados(id_empleado),
+    CONSTRAINT chk_turno CHECK (turno IN ('Mañana', 'Tarde', 'Noche'))
 );
 
 
@@ -30,7 +31,8 @@ CREATE TABLE convenios (
     empresa_asociada VARCHAR(100) NOT NULL,
     porcentaje_descuento DECIMAL(5,2) NOT NULL,
     
-    CONSTRAINT pk_convenios PRIMARY KEY (id_convenio)
+    CONSTRAINT pk_convenios PRIMARY KEY (id_convenio),
+    CONSTRAINT uq_convenios_empresa UNIQUE (empresa_asociada)
 );
 
 
@@ -43,7 +45,8 @@ CREATE TABLE cliente (
     id_convenio INT,
     
     CONSTRAINT pk_cliente PRIMARY KEY (dni_cliente),
-    CONSTRAINT fk_cliente_convenios FOREIGN KEY (id_convenio) REFERENCES convenios(id_convenio)
+    CONSTRAINT fk_cliente_convenios FOREIGN KEY (id_convenio) REFERENCES convenios(id_convenio),
+    CONSTRAINT uq_cliente_email UNIQUE (email)
 );
 
 
@@ -52,8 +55,11 @@ CREATE TABLE habitaciones (
     tipo_habitacion VARCHAR(50) NOT NULL,
     capacidad_personas INT NOT NULL,
     precio_base_noche DECIMAL(10,2) NOT NULL,
-    estado_habitacion VARCHAR(20) DEFAULT 'Disponible', --nuevo
-    CONSTRAINT pk_habitaciones PRIMARY KEY (numero_habitacion)
+    estado_habitacion VARCHAR(20) DEFAULT 'Disponible',
+    CONSTRAINT pk_habitaciones PRIMARY KEY (numero_habitacion),
+    CONSTRAINT chk_precio CHECK (precio_base_noche>0),
+    CONSTRAINT chk_estado CHECK (estado_habitacion IN ('Disponible', 'Ocupada', 'En Mantenimiento')),
+    CONSTRAINT chk_capacidad CHECK (capacidad_personas>0)
 );
 
 
@@ -68,7 +74,9 @@ CREATE TABLE reserva (
     
     CONSTRAINT pk_reserva PRIMARY KEY (id_reserva),
     CONSTRAINT fk_reserva_cliente FOREIGN KEY (dni_cliente) REFERENCES cliente(dni_cliente),
-    CONSTRAINT fk_reserva_habitaciones FOREIGN KEY (numero_habitacion) REFERENCES habitaciones(numero_habitacion)
+    CONSTRAINT fk_reserva_habitaciones FOREIGN KEY (numero_habitacion) REFERENCES habitaciones(numero_habitacion),
+    CONSTRAINT chk_estado_reserva CHECK (estado IN ('Pendiente', 'Confirmada', 'Cancelada', 'Finalizada')),
+    CONSTRAINT chk_fechas CHECK (fecha_checkin < fecha_checkout)
 );
 
 
@@ -79,11 +87,13 @@ CREATE TABLE reserva (
 
 
 CREATE TABLE proveedores (
-    ruc_proveedor VARCHAR(20),
+    ruc_proveedor VARCHAR(20) NOT NULL,
     razon_social VARCHAR(150) NOT NULL,
-    telefono_contacto VARCHAR(20),
+    telefono_contacto VARCHAR(20) NOT NULL,
     
-    CONSTRAINT pk_proveedores PRIMARY KEY (ruc_proveedor)
+    CONSTRAINT pk_proveedores PRIMARY KEY (ruc_proveedor),
+    CONSTRAINT uq_proveedores_ruc UNIQUE (ruc_proveedor),
+    CONSTRAINT uq_proveedores_razon UNIQUE (razon_social)
 );
 
 CREATE TABLE almacen_productos (
@@ -92,7 +102,9 @@ CREATE TABLE almacen_productos (
     cantidad_stock INT NOT NULL,
     ruc_proveedor VARCHAR(20),
     CONSTRAINT pk_almacen_productos PRIMARY KEY (id_producto),
-    CONSTRAINT fk_almacen_proveedores FOREIGN KEY (ruc_proveedor) REFERENCES proveedores(ruc_proveedor)
+    CONSTRAINT fk_almacen_proveedores FOREIGN KEY (ruc_proveedor) REFERENCES proveedores(ruc_proveedor),
+    CONSTRAINT chk_cantidad_stock CHECK (cantidad_stock >= 0),
+    CONSTRAINT uq_almacen_productos_nombre UNIQUE (nombre_producto)
 );
 CREATE TABLE movimientos_almacen (
     id_movimiento SERIAL,
@@ -103,7 +115,9 @@ CREATE TABLE movimientos_almacen (
     fecha_movimiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_movimientos_almacen PRIMARY KEY (id_movimiento),
     CONSTRAINT fk_movimientos_productos FOREIGN KEY (id_producto) REFERENCES almacen_productos(id_producto),
-    CONSTRAINT fk_movimientos_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+    CONSTRAINT fk_movimientos_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
+    CONSTRAINT chk_tipo_movimiento CHECK (tipo_movimiento IN ('Entrada', 'Salida')),
+    CONSTRAINT chk_cantidad_movimiento CHECK (cantidad > 0)
 );
 
 
@@ -114,25 +128,29 @@ CREATE TABLE presupuestos (
     fecha_fin DATE NOT NULL,    
     id_departamento INT,
     CONSTRAINT pk_presupuestos PRIMARY KEY (id_presupuesto),
-    CONSTRAINT fk_presupuestos_departamentos FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento)
+    CONSTRAINT fk_presupuestos_departamentos FOREIGN KEY (id_departamento) REFERENCES departamentos(id_departamento),
+    CONSTRAINT chk_fechas_presupuesto CHECK (fecha_inicio < fecha_fin),
+    CONSTRAINT chk_monto_asignado CHECK (monto_asignado > 0)
 );
 
 CREATE TABLE mantenimiento_tareas (
     id_tarea SERIAL,
-    descripcion_trabajo TEXT NOT NULL,
+    descripcion_trabajo VARCHAR(200) NOT NULL,
     fecha_realizacion DATE,
     id_empleado INT,
     numero_habitacion VARCHAR(10) NULL, -- ¡CORREGIDO!
     CONSTRAINT pk_mantenimiento_tareas PRIMARY KEY (id_tarea),
     CONSTRAINT fk_mantenimiento_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
-    CONSTRAINT fk_mantenimiento_habitaciones FOREIGN KEY (numero_habitacion) REFERENCES habitaciones(numero_habitacion)
+    CONSTRAINT fk_mantenimiento_habitaciones FOREIGN KEY (numero_habitacion) REFERENCES habitaciones(numero_habitacion),
+    CONSTRAINT chk_fecha_realizacion CHECK (fecha_realizacion >= CURRENT_DATE),
+    CONSTRAINT chk_descripcion_trabajo CHECK (descripcion_trabajo!='')
 );
 
 -- Modulo 4: SERVICIOS ADICIONALES 
 
 CREATE TABLE restaurante_consumos (
     id_consumo SERIAL,
-    detalle_pedido TEXT NOT NULL,
+    detalle_pedido VARCHAR(200) NOT NULL,
     monto_consumo DECIMAL(10,2) NOT NULL,
     fecha_hora TIMESTAMP,
     id_reserva INT,
@@ -140,7 +158,8 @@ CREATE TABLE restaurante_consumos (
     
     CONSTRAINT pk_restaurante_consumos PRIMARY KEY (id_consumo),
     CONSTRAINT fk_restaurante_reserva FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva),
-    CONSTRAINT fk_restaurante_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+    CONSTRAINT fk_restaurante_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
+    CONSTRAINT chk_monto_consumo CHECK (monto_consumo > 0)
 );
 
 CREATE TABLE guarderia_registros (
@@ -153,13 +172,14 @@ CREATE TABLE guarderia_registros (
     
     CONSTRAINT pk_guarderia_registros PRIMARY KEY (id_registro_guarderia),
     CONSTRAINT fk_guarderia_reserva FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva),
-    CONSTRAINT fk_guarderia_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+    CONSTRAINT fk_guarderia_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
+    CONSTRAINT chk_hora_salida CHECK (hora_salida > hora_ingreso)
 );
 
 CREATE TABLE cochera (
     id_espacio SERIAL,
-    numero_estacionamiento VARCHAR(10),
-    placa_vehiculo VARCHAR(15),
+    numero_estacionamiento VARCHAR(10) NOT NULL,
+    placa_vehiculo VARCHAR(15) NOT NULL,
     id_reserva INT,
     
     CONSTRAINT pk_cochera PRIMARY KEY (id_espacio),
@@ -175,7 +195,8 @@ CREATE TABLE eventos (
     id_empleado INT,
     CONSTRAINT pk_eventos PRIMARY KEY (id_evento),
     CONSTRAINT fk_eventos_reserva FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva),
-    CONSTRAINT fk_eventos_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+    CONSTRAINT fk_eventos_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
+    CONSTRAINT chk_costo_alquiler CHECK (costo_alquiler > 0)
 );
 -- Modulo 5: FACTURACIÓN
 
@@ -190,5 +211,6 @@ CREATE TABLE boleta (
     CONSTRAINT pk_boleta PRIMARY KEY (id_comprobante),
     CONSTRAINT fk_boleta_reserva FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva),
     CONSTRAINT fk_boleta_cliente FOREIGN KEY (dni_cliente) REFERENCES cliente(dni_cliente),
-    CONSTRAINT fk_boleta_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado)
+    CONSTRAINT fk_boleta_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
+    CONSTRAINT chk_monto_total CHECK (monto_total > 0)
 );
