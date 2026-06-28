@@ -60,6 +60,7 @@ CREATE TABLE habitaciones (
     CONSTRAINT chk_precio CHECK (precio_base_noche>0),
     CONSTRAINT chk_estado CHECK (estado_habitacion IN ('Disponible', 'Ocupada', 'En Mantenimiento')),
     CONSTRAINT chk_capacidad CHECK (capacidad_personas>0)
+    ,constraint chk_tipo_habitacion CHECK (tipo_habitacion IN ('Sencilla', 'Doble', 'Matrimonial', 'Familiar', 'Suite', 'Suite Doble'))
 );
 
 
@@ -103,8 +104,7 @@ CREATE TABLE almacen_productos (
     ruc_proveedor VARCHAR(20),
     CONSTRAINT pk_almacen_productos PRIMARY KEY (id_producto),
     CONSTRAINT fk_almacen_proveedores FOREIGN KEY (ruc_proveedor) REFERENCES proveedores(ruc_proveedor),
-    CONSTRAINT chk_cantidad_stock CHECK (cantidad_stock >= 0),
-    CONSTRAINT uq_almacen_productos_nombre UNIQUE (nombre_producto)
+    CONSTRAINT chk_cantidad_stock CHECK (cantidad_stock >= 0)
 );
 CREATE TABLE movimientos_almacen (
     id_movimiento SERIAL,
@@ -142,7 +142,6 @@ CREATE TABLE mantenimiento_tareas (
     CONSTRAINT pk_mantenimiento_tareas PRIMARY KEY (id_tarea),
     CONSTRAINT fk_mantenimiento_empleados FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
     CONSTRAINT fk_mantenimiento_habitaciones FOREIGN KEY (numero_habitacion) REFERENCES habitaciones(numero_habitacion),
-    CONSTRAINT chk_fecha_realizacion CHECK (fecha_realizacion >= CURRENT_DATE),
     CONSTRAINT chk_descripcion_trabajo CHECK (descripcion_trabajo!='')
 );
 
