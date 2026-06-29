@@ -56,6 +56,7 @@ CREATE TABLE habitaciones (
     capacidad_personas INT NOT NULL,
     precio_base_noche DECIMAL(10,2) NOT NULL,
     estado_habitacion VARCHAR(20) DEFAULT 'Disponible',
+    caracteristicas_adicionales JSONB,
     CONSTRAINT pk_habitaciones PRIMARY KEY (numero_habitacion),
     CONSTRAINT chk_precio CHECK (precio_base_noche>0),
     CONSTRAINT chk_estado CHECK (estado_habitacion IN ('Disponible', 'Ocupada', 'En Mantenimiento')),

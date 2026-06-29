@@ -1,7 +1,5 @@
--- ======================================================================
--- VISTAS (Consultas estáticas predefinidas, se consumen con GET)
--- ======================================================================
 
+--funciones de lectura
 CREATE OR REPLACE VIEW clientes_frecuentes_restaurante AS
 SELECT 
     c.dni_cliente,
@@ -15,9 +13,6 @@ GROUP BY c.dni_cliente, c.nombre_completo
 HAVING COUNT(rc.id_consumo) >= 3
 ORDER BY gasto_consumo DESC;
 
--- ======================================================================
--- FUNCIONES DE LECTURA (Consultas dinámicas con parámetros, consumen POST)
--- ======================================================================
 
 CREATE OR REPLACE FUNCTION historial_consumos_cliente(p_dni_cliente VARCHAR)
 RETURNS TABLE (
@@ -89,9 +84,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- ======================================================================
--- FUNCIONES (Lógica que altera múltiples tablas a la vez)
--- ======================================================================
 
 CREATE OR REPLACE FUNCTION registrar_inicio_mantenimiento(
     p_descripcion TEXT,
@@ -103,14 +95,14 @@ BEGIN
     INSERT INTO mantenimiento_tareas (descripcion_trabajo, fecha_realizacion, id_empleado, numero_habitacion)
     VALUES (p_descripcion, CURRENT_DATE, p_id_empleado, p_numero_habitacion);
     UPDATE habitaciones
-    SET estado_habitacion = 'Mantenimiento'
+    SET estado_habitacion = 'En Mantenimiento'
     WHERE numero_habitacion = p_numero_habitacion;
 
     RETURN 'Operación exitosa: Tarea registrada y habitación ' || p_numero_habitacion || ' puesta en mantenimiento.';
 END;
 $$ LANGUAGE plpgsql;
 
--- 5. Función: Calcular estado de cuenta con descuentos (Retorna JSON)
+-- Calcular estado de cuenta con descuentos 
 CREATE OR REPLACE FUNCTION calcular_estado_cuenta(p_id_reserva INT)
 RETURNS json AS $$
 DECLARE
@@ -175,7 +167,7 @@ DECLARE
     v_resultado JSON;
 BEGIN
     UPDATE reserva 
-    SET estado = 'Activa' 
+    SET estado = 'Confirmada' 
     WHERE id_reserva = p_id_reserva;
 
     UPDATE habitaciones 
